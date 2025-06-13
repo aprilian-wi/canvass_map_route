@@ -49,7 +49,7 @@ export default function Map({ startPoint, route }: MapProps) {
     // Add route points and connect them
     const routeCoordinates = route.map(point => [point.lat, point.lng] as [number, number]);
     
-    route.forEach((point, index) => {
+  route.forEach((point) => {
       L.marker([point.lat, point.lng], {
         title: `Point ${point.order}`,
         icon: L.divIcon({
