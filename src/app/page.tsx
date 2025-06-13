@@ -166,7 +166,7 @@ export default function RoutePlannerPage() {
             <TabsContent value="results">
               {destinations.length > 0 && startPoint && (
                 <div className="space-y-6">
-                  <div className="flex justify-end">
+                  <div className="flex justify-end space-x-2">
                     <button
                       onClick={() => {
                         const csvContent = [
@@ -194,6 +194,18 @@ export default function RoutePlannerPage() {
                     >
                       Download CSV
                     </button>
+                    <button
+                      onClick={() => {
+                        const coordsText = destinations
+                          .map(d => `${d.lat.toFixed(6)},${d.lng.toFixed(6)}`)
+                          .join('\n');
+                        navigator.clipboard.writeText(coordsText);
+                        alert('Koordinat telah disalin ke clipboard');
+                      }}
+                      className="mb-2 rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700"
+                    >
+                      Copy Coordinates
+                    </button>
                   </div>
                   <Table>
                     <TableHeader>
@@ -208,9 +220,39 @@ export default function RoutePlannerPage() {
                       {destinations.map((point) => (
                         <TableRow key={point.order}>
                           <TableCell>{point.order}</TableCell>
-                          <TableCell>{point.lat.toFixed(4)}</TableCell>
-                          <TableCell>{point.lng.toFixed(4)}</TableCell>
-                          <TableCell>{point.distance.toFixed(2)}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center space-x-2">
+                            <span>{point.lat.toFixed(6)}</span>
+                            <button
+                              onClick={() => {
+                                navigator.clipboard.writeText(`${point.lat.toFixed(6)},${point.lng.toFixed(6)}`);
+                                alert('Koordinat telah disalin ke clipboard');
+                              }}
+                              className="rounded bg-gray-100 p-1 hover:bg-gray-200"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+                              </svg>
+                            </button>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center space-x-2">
+                            <span>{point.lng.toFixed(6)}</span>
+                            <button
+                              onClick={() => {
+                                navigator.clipboard.writeText(`${point.lat.toFixed(6)},${point.lng.toFixed(6)}`);
+                                alert('Koordinat telah disalin ke clipboard');
+                              }}
+                              className="rounded bg-gray-100 p-1 hover:bg-gray-200"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+                              </svg>
+                            </button>
+                          </div>
+                        </TableCell>
+                        <TableCell>{point.distance.toFixed(2)}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
