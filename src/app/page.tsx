@@ -131,8 +131,11 @@ export default function RoutePlannerPage() {
       <Card className="mb-8">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center">
-            Route Planner
+            Route Planner - Optimasi Rute
           </CardTitle>
+          <p className="text-center text-gray-600 mt-2">
+            Rute akan dioptimalkan menggunakan algoritma Nearest Neighbor untuk menghasilkan urutan kunjungan yang paling efisien
+          </p>
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -256,7 +259,7 @@ export default function RoutePlannerPage() {
                         <TableHead>Nama & Alamat</TableHead>
                         <TableHead>Latitude</TableHead>
                         <TableHead>Longitude</TableHead>
-                        <TableHead>Jarak (km)</TableHead>
+                        <TableHead>Jarak Kumulatif (km)</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>

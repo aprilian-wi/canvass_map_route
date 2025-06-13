@@ -80,15 +80,40 @@ export interface RoutePoint extends LocationData {
 }
 
 export function calculateRoute(start: Coordinate, destinations: LocationData[]): RoutePoint[] {
-  const points = destinations.map(dest => ({
-    ...dest,
-    distance: haversineDistance(start, dest),
-    order: 0,
-  }));
+  // Initialize variables
+  const unvisited = [...destinations];
+  const route: RoutePoint[] = [];
+  let currentPoint: Coordinate = start;
+  let totalDistance = 0;
 
-  return points.sort((a, b) => a.distance - b.distance)
-    .map((point, index) => ({
-      ...point,
-      order: index + 1,
-    }));
+  // Find nearest neighbor repeatedly until all points are visited
+  while (unvisited.length > 0) {
+    // Find the nearest unvisited point
+    let nearestIndex = 0;
+    let shortestDistance = haversineDistance(currentPoint, unvisited[0]);
+
+    for (let i = 1; i < unvisited.length; i++) {
+      const distance = haversineDistance(currentPoint, unvisited[i]);
+      if (distance < shortestDistance) {
+        shortestDistance = distance;
+        nearestIndex = i;
+      }
+    }
+
+    // Add the nearest point to the route
+    const nextPoint = unvisited[nearestIndex];
+    totalDistance += shortestDistance;
+
+    route.push({
+      ...nextPoint,
+      order: route.length + 1,
+      distance: totalDistance, // Cumulative distance from start
+    });
+
+    // Update current point and remove visited point
+    currentPoint = nextPoint;
+    unvisited.splice(nearestIndex, 1);
+  }
+
+  return route;
 }
