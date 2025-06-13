@@ -93,6 +93,6 @@ const items = [
 ];
 
 // Rendering items
-{items.map((item, index) => (
+{items.map((item) => (
   <div key={item.id}>{item.name}</div>
 ))}
