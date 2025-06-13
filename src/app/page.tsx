@@ -85,11 +85,36 @@ export default function RoutePlannerPage() {
     try {
       // Sample coordinates around Jakarta
       const sampleDestinations = [
-        { lat: -6.2088, lng: 106.8456 },
-        { lat: -6.1751, lng: 106.8650 },
-        { lat: -6.2382, lng: 106.8255 },
-        { lat: -6.1935, lng: 106.8228 },
-        { lat: -6.2241, lng: 106.8451 },
+        { 
+          lat: -6.2088, 
+          lng: 106.8456,
+          name: "Toyib Travel",
+          address: "Jl. Tole Iskandar No.9, Tirtajaya, Kec. Sukmajaya"
+        },
+        { 
+          lat: -6.1751, 
+          lng: 106.8650,
+          name: "Al Hijaz Travel",
+          address: "Jl. Margonda Raya No.12, Depok"
+        },
+        { 
+          lat: -6.2382, 
+          lng: 106.8255,
+          name: "Safina Tour",
+          address: "Jl. Juanda No.50, Depok"
+        },
+        { 
+          lat: -6.1935, 
+          lng: 106.8228,
+          name: "Andalusia Travel",
+          address: "Jl. Raya Bogor Km.29, Jakarta Timur"
+        },
+        { 
+          lat: -6.2241, 
+          lng: 106.8451,
+          name: "Dian Travel",
+          address: "Jl. Cinere Raya No.15, Depok"
+        }
       ];
 
       const route = calculateRoute(startPoint, sampleDestinations);
@@ -158,15 +183,15 @@ export default function RoutePlannerPage() {
                     <div className="space-y-2 text-sm text-gray-500">
                       <p>Format CSV yang dibutuhkan:</p>
                       <ul className="list-disc pl-5">
-                        <li>Setiap baris berisi: latitude,longitude (dipisahkan dengan koma)</li>
-                        <li>Tidak perlu header/judul kolom</li>
-                        <li>Contoh format:</li>
-                      </ul>
-                      <pre className="bg-gray-100 p-2 rounded">
-                        -6.1751,106.8650{"\n"}
-                        -6.2382,106.8255{"\n"}
-                        -6.1935,106.8228
-                      </pre>
+                      <li>Setiap baris berisi: latitude,longitude,nama,alamat (dipisahkan dengan koma)</li>
+                      <li>Tidak perlu header/judul kolom</li>
+                      <li>Contoh format:</li>
+                    </ul>
+                    <pre className="bg-gray-100 p-2 rounded">
+                      -6.1751,106.8650,Toyib Travel,Jl. Tole Iskandar No.9{"\n"}
+                      -6.2382,106.8255,Al Hijaz Travel,Jl. Margonda Raya No.12{"\n"}
+                      -6.1935,106.8228,Safina Tour,Jl. Juanda No.50
+                    </pre>
                       <p>
                         <a 
                           href="/sample.csv" 
@@ -228,6 +253,7 @@ export default function RoutePlannerPage() {
                     <TableHeader>
                       <TableRow>
                         <TableHead>No.</TableHead>
+                        <TableHead>Nama & Alamat</TableHead>
                         <TableHead>Latitude</TableHead>
                         <TableHead>Longitude</TableHead>
                         <TableHead>Jarak (km)</TableHead>
@@ -237,6 +263,14 @@ export default function RoutePlannerPage() {
                       {destinations.map((point) => (
                         <TableRow key={point.order}>
                           <TableCell>{point.order}</TableCell>
+                          <TableCell>
+                            {point.name && (
+                              <div className="font-medium">{point.name}</div>
+                            )}
+                            {point.address && (
+                              <div className="text-sm text-gray-500">{point.address}</div>
+                            )}
+                          </TableCell>
                           <TableCell>
                             <div className="flex items-center space-x-2">
                               <span>{point.lat.toFixed(6)}</span>

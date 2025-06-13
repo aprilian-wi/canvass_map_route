@@ -32,13 +32,22 @@ export function haversineDistance(coord1: Coordinate, coord2: Coordinate): numbe
   return EARTH_RADIUS_KM * c;
 }
 
-export function parseCoordinatesFromCSV(csvContent: string): Coordinate[] {
+export interface LocationData {
+  lat: number;
+  lng: number;
+  name?: string;
+  address?: string;
+}
+
+export function parseCoordinatesFromCSV(csvContent: string): LocationData[] {
   try {
     const lines = csvContent.trim().split('\n');
-    const coordinates: Coordinate[] = [];
+    const locations: LocationData[] = [];
 
     for (const line of lines) {
-      const [lat, lng] = line.split(',').map(val => parseFloat(val.trim()));
+      const parts = line.split(',').map(part => part.trim());
+      const lat = parseFloat(parts[0]);
+      const lng = parseFloat(parts[1]);
       
       if (isNaN(lat) || isNaN(lng)) {
         throw new Error('Invalid coordinate values in CSV');
@@ -49,21 +58,28 @@ export function parseCoordinatesFromCSV(csvContent: string): Coordinate[] {
         throw new Error('Coordinates out of valid range');
       }
 
-      coordinates.push(coord);
+      const location: LocationData = {
+        lat,
+        lng,
+        name: parts[2],
+        address: parts[3]
+      };
+
+      locations.push(location);
     }
 
-    return coordinates;
+    return locations;
   } catch (error) {
     throw new Error('Failed to parse CSV: ' + (error as Error).message);
   }
 }
 
-export interface RoutePoint extends Coordinate {
+export interface RoutePoint extends LocationData {
   distance: number;
   order: number;
 }
 
-export function calculateRoute(start: Coordinate, destinations: Coordinate[]): RoutePoint[] {
+export function calculateRoute(start: Coordinate, destinations: LocationData[]): RoutePoint[] {
   const points = destinations.map(dest => ({
     ...dest,
     distance: haversineDistance(start, dest),
