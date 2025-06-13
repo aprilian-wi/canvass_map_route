@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -26,6 +26,28 @@ export default function RoutePlannerPage() {
   const [destinations, setDestinations] = useState<RoutePoint[]>([]);
   const [error, setError] = useState<string>('');
   const [activeTab, setActiveTab] = useState<string>('input');
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setStartPoint({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+          setIsLoading(false);
+        },
+        (error) => {
+          console.error("Error getting location:", error);
+          setIsLoading(false);
+        }
+      );
+    } else {
+      setError("Geolocation is not supported by your browser");
+      setIsLoading(false);
+    }
+  }, []);
 
   const handleStartPointChange = (field: 'lat' | 'lng', value: string) => {
     const numValue = parseFloat(value);
@@ -90,77 +112,84 @@ export default function RoutePlannerPage() {
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="input">Input Data</TabsTrigger>
-            <TabsTrigger value="results">Hasil Rute</TabsTrigger>
+              <TabsTrigger value="input">Input Data</TabsTrigger>
+              <TabsTrigger value="results">Hasil Rute</TabsTrigger>
             </TabsList>
 
             <TabsContent value="input" className="space-y-6">
-              <div className="grid gap-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="start-lat">Latitude Titik Awal</Label>
-                  <Input
-                    id="start-lat"
-                    type="number"
-                    step="any"
-                    value={startPoint.lat}
-                    placeholder="Enter latitude (e.g. -6.2088)"
-                    onChange={(e) => handleStartPointChange('lat', e.target.value)}
-                  />
+              {isLoading ? (
+                <div className="flex items-center justify-center p-4">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+                  <span className="ml-2">Mendapatkan lokasi Anda...</span>
                 </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="start-lng">Longitude Titik Awal</Label>
-                  <Input
-                    id="start-lng"
-                    type="number"
-                    step="any"
-                    value={startPoint.lng}
-                    placeholder="Enter longitude (e.g. 106.8456)"
-                    onChange={(e) => handleStartPointChange('lng', e.target.value)}
-                  />
-                </div>
-
-                <div className="grid gap-2">
-                  <Label htmlFor="csv-upload">Upload Titik Tujuan (CSV)</Label>
-                  <Input
-                    id="csv-upload"
-                    type="file"
-                    accept=".csv"
-                    onChange={handleFileUpload}
-                  />
-                  <div className="space-y-2 text-sm text-gray-500">
-                    <p>Format CSV yang dibutuhkan:</p>
-                    <ul className="list-disc pl-5">
-                      <li>Setiap baris berisi: latitude,longitude (dipisahkan dengan koma)</li>
-                      <li>Tidak perlu header/judul kolom</li>
-                      <li>Contoh format:</li>
-                    </ul>
-                    <pre className="bg-gray-100 p-2 rounded">
-                      -6.1751,106.8650{"\n"}
-                      -6.2382,106.8255{"\n"}
-                      -6.1935,106.8228
-                    </pre>
-                    <p>
-                      <a 
-                        href="/sample.csv" 
-                        download 
-                        className="text-blue-600 hover:underline"
-                      >
-                        Download contoh file CSV
-                      </a>
-                    </p>
+              ) : (
+                <div className="grid gap-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="start-lat">Latitude Titik Awal</Label>
+                    <Input
+                      id="start-lat"
+                      type="number"
+                      step="any"
+                      value={startPoint.lat}
+                      placeholder="Enter latitude (e.g. -6.2088)"
+                      onChange={(e) => handleStartPointChange('lat', e.target.value)}
+                    />
                   </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="start-lng">Longitude Titik Awal</Label>
+                    <Input
+                      id="start-lng"
+                      type="number"
+                      step="any"
+                      value={startPoint.lng}
+                      placeholder="Enter longitude (e.g. 106.8456)"
+                      onChange={(e) => handleStartPointChange('lng', e.target.value)}
+                    />
+                  </div>
+
+                  <div className="grid gap-2">
+                    <Label htmlFor="csv-upload">Upload Titik Tujuan (CSV)</Label>
+                    <Input
+                      id="csv-upload"
+                      type="file"
+                      accept=".csv"
+                      onChange={handleFileUpload}
+                    />
+                    <div className="space-y-2 text-sm text-gray-500">
+                      <p>Format CSV yang dibutuhkan:</p>
+                      <ul className="list-disc pl-5">
+                        <li>Setiap baris berisi: latitude,longitude (dipisahkan dengan koma)</li>
+                        <li>Tidak perlu header/judul kolom</li>
+                        <li>Contoh format:</li>
+                      </ul>
+                      <pre className="bg-gray-100 p-2 rounded">
+                        -6.1751,106.8650{"\n"}
+                        -6.2382,106.8255{"\n"}
+                        -6.1935,106.8228
+                      </pre>
+                      <p>
+                        <a 
+                          href="/sample.csv" 
+                          download 
+                          className="text-blue-600 hover:underline"
+                        >
+                          Download contoh file CSV
+                        </a>
+                      </p>
+                    </div>
+                  </div>
+
+                  <Button onClick={handleSampleData} className="w-full">
+                    Gunakan Data Contoh
+                  </Button>
+
+                  {error && (
+                    <Alert variant="destructive">
+                      <AlertDescription>{error}</AlertDescription>
+                    </Alert>
+                  )}
                 </div>
-
-                <Button onClick={handleSampleData} className="w-full">
-                  Gunakan Data Contoh
-                </Button>
-
-                {error && (
-                  <Alert variant="destructive">
-                    <AlertDescription>{error}</AlertDescription>
-                  </Alert>
-                )}
-              </div>
+              )}
             </TabsContent>
 
             <TabsContent value="results">
@@ -194,18 +223,6 @@ export default function RoutePlannerPage() {
                     >
                       Download CSV
                     </button>
-                    <button
-                      onClick={() => {
-                        const coordsText = destinations
-                          .map(d => `${d.lat.toFixed(6)},${d.lng.toFixed(6)}`)
-                          .join('\n');
-                        navigator.clipboard.writeText(coordsText);
-                        alert('Koordinat telah disalin ke clipboard');
-                      }}
-                      className="mb-2 rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700"
-                    >
-                      Copy Coordinates
-                    </button>
                   </div>
                   <Table>
                     <TableHeader>
@@ -220,39 +237,39 @@ export default function RoutePlannerPage() {
                       {destinations.map((point) => (
                         <TableRow key={point.order}>
                           <TableCell>{point.order}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center space-x-2">
-                            <span>{point.lat.toFixed(6)}</span>
-                            <button
-                              onClick={() => {
-                                navigator.clipboard.writeText(`${point.lat.toFixed(6)},${point.lng.toFixed(6)}`);
-                                alert('Koordinat telah disalin ke clipboard');
-                              }}
-                              className="rounded bg-gray-100 p-1 hover:bg-gray-200"
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
-                              </svg>
-                            </button>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center space-x-2">
-                            <span>{point.lng.toFixed(6)}</span>
-                            <button
-                              onClick={() => {
-                                navigator.clipboard.writeText(`${point.lat.toFixed(6)},${point.lng.toFixed(6)}`);
-                                alert('Koordinat telah disalin ke clipboard');
-                              }}
-                              className="rounded bg-gray-100 p-1 hover:bg-gray-200"
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
-                              </svg>
-                            </button>
-                          </div>
-                        </TableCell>
-                        <TableCell>{point.distance.toFixed(2)}</TableCell>
+                          <TableCell>
+                            <div className="flex items-center space-x-2">
+                              <span>{point.lat.toFixed(6)}</span>
+                              <button
+                                onClick={() => {
+                                  navigator.clipboard.writeText(`${point.lat.toFixed(6)},${point.lng.toFixed(6)}`);
+                                  alert('Koordinat telah disalin ke clipboard');
+                                }}
+                                className="rounded bg-gray-100 p-1 hover:bg-gray-200"
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                  <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+                                </svg>
+                              </button>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center space-x-2">
+                              <span>{point.lng.toFixed(6)}</span>
+                              <button
+                                onClick={() => {
+                                  navigator.clipboard.writeText(`${point.lat.toFixed(6)},${point.lng.toFixed(6)}`);
+                                  alert('Koordinat telah disalin ke clipboard');
+                                }}
+                                className="rounded bg-gray-100 p-1 hover:bg-gray-200"
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                  <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+                                </svg>
+                              </button>
+                            </div>
+                          </TableCell>
+                          <TableCell>{point.distance.toFixed(2)}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
