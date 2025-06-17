@@ -53,11 +53,19 @@ export default function Map({ startPoint, route }: MapProps) {
       L.marker([point.lat, point.lng], {
         title: `Point ${point.order}`,
         icon: L.divIcon({
-          className: 'bg-red-500 w-3 h-3 rounded-full border-2 border-white',
+          className: point.visited 
+            ? 'bg-green-500 w-3 h-3 rounded-full border-2 border-white' 
+            : 'bg-red-500 w-3 h-3 rounded-full border-2 border-white',
           iconSize: [12, 12],
         })
       }).addTo(map)
-        .bindPopup(`Titik ${point.order}<br>Jarak: ${point.distance.toFixed(2)} km`);
+        .bindPopup(
+          `Titik ${point.order}
+          ${point.name ? `<br>${point.name}` : ''}
+          ${point.address ? `<br>${point.address}` : ''}
+          <br>Jarak: ${point.distance.toFixed(2)} km
+          <br>Status: ${point.visited ? 'Sudah dikunjungi' : 'Belum dikunjungi'}`
+        );
     });
 
     // Draw route line
@@ -84,15 +92,3 @@ export default function Map({ startPoint, route }: MapProps) {
     <div id={mapContainerId} className={styles.mapContainer} />
   );
 }
-
-// Example items array
-const items = [
-  { id: 1, name: 'Item 1' },
-  { id: 2, name: 'Item 2' },
-  { id: 3, name: 'Item 3' },
-];
-
-// Rendering items
-{items.map((item) => (
-  <div key={item.id}>{item.name}</div>
-))}

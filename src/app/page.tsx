@@ -260,6 +260,7 @@ export default function RoutePlannerPage() {
                         <TableHead>Latitude</TableHead>
                         <TableHead>Longitude</TableHead>
                         <TableHead>Jarak Kumulatif (km)</TableHead>
+                        <TableHead>Status</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -306,7 +307,24 @@ export default function RoutePlannerPage() {
                               </button>
                             </div>
                           </TableCell>
-                          <TableCell>{point.distance.toFixed(2)}</TableCell>
+                        <TableCell>{point.distance.toFixed(2)}</TableCell>
+                        <TableCell>
+                          <button
+                            onClick={() => {
+                              const newDestinations = destinations.map(d =>
+                                d.order === point.order ? { ...d, visited: !d.visited } : d
+                              );
+                              setDestinations(newDestinations);
+                            }}
+                            className={`px-3 py-1 rounded-full text-sm ${
+                              point.visited
+                                ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                                : 'bg-red-100 text-red-700 hover:bg-red-200'
+                            }`}
+                          >
+                            {point.visited ? 'Sudah dikunjungi' : 'Belum dikunjungi'}
+                          </button>
+                        </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>

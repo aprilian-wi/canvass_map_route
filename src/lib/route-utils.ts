@@ -77,6 +77,7 @@ export function parseCoordinatesFromCSV(csvContent: string): LocationData[] {
 export interface RoutePoint extends LocationData {
   distance: number;
   order: number;
+  visited: boolean;
 }
 
 export function calculateRoute(start: Coordinate, destinations: LocationData[]): RoutePoint[] {
@@ -108,6 +109,7 @@ export function calculateRoute(start: Coordinate, destinations: LocationData[]):
       ...nextPoint,
       order: route.length + 1,
       distance: totalDistance, // Cumulative distance from start
+      visited: false
     });
 
     // Update current point and remove visited point
